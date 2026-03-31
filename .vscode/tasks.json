@@ -1,0 +1,264 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build-client",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"client",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "build-server",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"server",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "build-server-verify",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"server",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "check-live-event",
+			"type": "shell",
+			"command": "curl",
+			"args": [
+				"-s",
+				"http://127.0.0.1:3000/api/public/event"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "build-client-verify-zoom",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"client",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "build-server-verify-zoom",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"server",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "migrate-june-2026",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"server",
+				"exec",
+				"tsx",
+				"src/scripts/migrate-june-2026.ts"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "check-live-event-after-migration",
+			"type": "shell",
+			"command": "curl",
+			"args": [
+				"-s",
+				"http://127.0.0.1:3000/api/public/event"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "build-server-after-migration-fix",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"server",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "run-june-2026-migration",
+			"type": "shell",
+			"command": "./node_modules/.bin/tsx",
+			"args": [
+				"server/src/scripts/migrate-june-2026.ts"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "check-live-event-final",
+			"type": "shell",
+			"command": "curl",
+			"args": [
+				"-s",
+				"http://127.0.0.1:3000/api/public/event"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "build-server-after-primary-fix",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"server",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "run-june-2026-migration-fixed",
+			"type": "shell",
+			"command": "./node_modules/.bin/tsx",
+			"args": [
+				"server/src/scripts/migrate-june-2026.ts"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "build-server-final-2026",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"server",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "rerun-june-2026-migration",
+			"type": "shell",
+			"command": "./node_modules/.bin/tsx",
+			"args": [
+				"server/src/scripts/migrate-june-2026.ts"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "check-live-event-confirmed",
+			"type": "shell",
+			"command": "curl",
+			"args": [
+				"-s",
+				"http://127.0.0.1:3000/api/public/event"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "build-client-summary-and-timeline",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"client",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "build-client-public-admin-fixes",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"client",
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "import-screenshot-shifts",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"server",
+				"exec",
+				"tsx",
+				"src/scripts/import-screenshot-shifts.ts"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "import-screenshot-shifts-direct",
+			"type": "shell",
+			"command": "./node_modules/.bin/tsx",
+			"args": [
+				"server/src/scripts/import-screenshot-shifts.ts"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "export-current-shifts-csv",
+			"type": "shell",
+			"command": "./node_modules/.bin/tsx",
+			"args": [
+				"server/src/scripts/export-current-shifts.ts"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "prisma-update-schema",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"server",
+				"run",
+				"prisma:generate",
+				"&&",
+				"npm",
+				"--prefix",
+				"server",
+				"run",
+				"prisma:push"
+			],
+			"isBackground": false
+		}
+	]
+}

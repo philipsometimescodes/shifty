@@ -1,0 +1,130 @@
+- generic [ref=e20]:
+  - banner [ref=e21]:
+    - link "Shifty Event shift planning" [ref=e22] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e23]: Shifty
+      - generic [ref=e24]: Event shift planning
+    - button "Log out" [ref=e25] [cursor=pointer]
+  - main [ref=e26]:
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - heading "Event" [level=2] [ref=e29]
+        - generic [ref=e30]:
+          - button "Show shift types" [ref=e31] [cursor=pointer]
+          - button "Edit event dates" [ref=e32] [cursor=pointer]
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - text: Start
+          - strong [ref=e35]: Thursday, May 1, 2025
+        - generic [ref=e36]:
+          - text: End
+          - strong [ref=e37]: Saturday, May 10, 2025
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - heading "New shift" [level=2] [ref=e40]
+        - generic [ref=e41]: Public or internal
+      - generic [ref=e42]:
+        - generic [ref=e43]:
+          - text: Shift type
+          - combobox "Shift type" [ref=e44]:
+            - option "Select shift type"
+            - option "Bar Shift" [selected]
+            - option "Bar Shift 1774984975"
+            - option "Bar Support"
+            - option "Info Tent"
+            - option "Medics"
+            - option "Parking"
+            - option "Toilets"
+        - paragraph [ref=e45]: Evening drinks service
+        - generic [ref=e46]:
+          - text: Date
+          - textbox "Date" [ref=e49]:
+            - /placeholder: Select a date
+            - text: Thu, 01 May 2025
+        - generic [ref=e50]:
+          - generic [ref=e51]:
+            - text: Start time
+            - textbox "Start time" [ref=e52]
+          - generic [ref=e53]:
+            - text: End time
+            - textbox "End time" [ref=e54]
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - text: Visibility
+            - combobox "Visibility" [ref=e57]:
+              - option "Internal only" [selected]
+              - option "Public"
+          - generic [ref=e58]:
+            - text: Capacity
+            - spinbutton "Capacity" [ref=e59]: "1"
+        - button "Create shift" [ref=e61] [cursor=pointer]
+    - generic [ref=e62]:
+      - generic [ref=e63]:
+        - heading "Shifts" [level=2] [ref=e64]
+        - generic [ref=e65]:
+          - checkbox "Show archived" [ref=e66]
+          - text: Show archived
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - generic [ref=e69]:
+            - heading "Shift timeline" [level=3] [ref=e70]
+            - paragraph [ref=e71]: Rows group shifts by type. Bars are placed by date and time, and clicking a bar opens that shift in the editor.
+          - generic [ref=e72]:
+            - generic [ref=e73]: 10 days
+            - generic [ref=e74]: 1 shift shown
+        - generic [ref=e76]:
+          - generic [ref=e77]: Shift type
+          - generic [ref=e78]:
+            - strong [ref=e80]: Thu, May 1
+            - strong [ref=e82]: Fri, May 2
+            - strong [ref=e84]: Sat, May 3
+            - strong [ref=e86]: Sun, May 4
+            - strong [ref=e88]: Mon, May 5
+            - strong [ref=e90]: Tue, May 6
+            - strong [ref=e92]: Wed, May 7
+            - strong [ref=e94]: Thu, May 8
+            - strong [ref=e96]: Fri, May 9
+            - strong [ref=e98]: Sat, May 10
+          - generic [ref=e99]:
+            - strong [ref=e100]: Bar Shift
+            - generic [ref=e101]: 1 shift
+          - button "Edit Bar Shift on 2025-05-01 from 18:00 to 22:00" [ref=e113] [cursor=pointer]:
+            - generic [ref=e114]: 18:00 to 22:00
+            - generic [ref=e115]: Public · 1/3
+      - article [ref=e117]:
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - strong [ref=e120]: Bar Shift
+            - generic [ref=e121]: Public
+          - paragraph [ref=e122]: Thursday, May 1, 2025 · 18:00 to 22:00 · 4h
+          - paragraph [ref=e123]: Evening drinks service
+          - paragraph [ref=e124]: Reserved 1 / 3 · Available 2
+        - generic [ref=e125]:
+          - button "Edit" [ref=e126] [cursor=pointer]
+          - button "Archive" [ref=e127] [cursor=pointer]
+    - generic [ref=e128]:
+      - generic [ref=e129]:
+        - heading "Applications" [level=2] [ref=e130]
+        - generic [ref=e131]: 1 records
+      - table [ref=e133]:
+        - rowgroup [ref=e134]:
+          - row "Name Email Shift Status Actions" [ref=e135]:
+            - columnheader "Name" [ref=e136]
+            - columnheader "Email" [ref=e137]
+            - columnheader "Shift" [ref=e138]
+            - columnheader "Status" [ref=e139]
+            - columnheader "Actions" [ref=e140]
+        - rowgroup [ref=e141]:
+          - row "Alex Example alex-1774984975@example.com Bar Shift Thu, May 1 · 18:00 to 22:00 · Public APPROVED Pending Approve Reject" [ref=e142]:
+            - cell "Alex Example" [ref=e143]
+            - cell "alex-1774984975@example.com" [ref=e144]
+            - cell "Bar Shift Thu, May 1 · 18:00 to 22:00 · Public" [ref=e145]:
+              - text: Bar Shift
+              - generic [ref=e146]: Thu, May 1 · 18:00 to 22:00 · Public
+            - cell "APPROVED" [ref=e147]:
+              - generic [ref=e148]: APPROVED
+            - cell "Pending Approve Reject" [ref=e149]:
+              - generic [ref=e150]:
+                - button "Pending" [ref=e151] [cursor=pointer]
+                - button "Approve" [ref=e152] [cursor=pointer]
+                - button "Reject" [ref=e153] [cursor=pointer]

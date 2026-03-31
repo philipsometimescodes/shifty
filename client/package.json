@@ -1,0 +1,24 @@
+{
+  "name": "client",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build"
+  },
+  "dependencies": {
+    "date-fns": "^2.30.0",
+    "react": "^18.3.1",
+    "react-datepicker": "^4.25.0",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.0"
+  },
+  "devDependencies": {
+    "@types/react-datepicker": "^4.19.6",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.8.2",
+    "vite": "^4.5.5"
+  }
+}

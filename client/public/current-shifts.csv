@@ -1,0 +1,86 @@
+shiftTypeName,shiftTypeDescription,defaultLengthMinutes,date,startTime,endTime,capacity,isPublic
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-12,16:00,19:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-12,16:00,19:00,1,true
+Medis,Medizinische Erstversorgung und Bereitschaft waehrend des Festivals.,240,2026-06-12,16:00,20:00,2,false
+Parkplätze,Einweisung und Koordination auf den Parkflaechen.,180,2026-06-12,16:00,19:00,6,false
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-12,16:00,19:00,2,false
+Springer:innen,"Flexible Unterstuetzung dort, wo kurzfristig Hilfe gebraucht wird.",240,2026-06-12,16:00,20:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-12,17:00,20:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-12,19:00,22:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-12,19:00,22:00,1,true
+Parkplätze,Einweisung und Koordination auf den Parkflaechen.,180,2026-06-12,19:00,22:00,6,false
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-12,19:00,22:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-12,20:00,22:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-12,20:00,22:00,2,false
+Medis,Medizinische Erstversorgung und Bereitschaft waehrend des Festivals.,240,2026-06-12,20:00,00:00,2,false
+Springer:innen,"Flexible Unterstuetzung dort, wo kurzfristig Hilfe gebraucht wird.",240,2026-06-12,20:00,00:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-12,22:00,00:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-12,22:00,00:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-12,22:00,01:00,1,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-12,22:00,01:00,1,true
+Parkplätze,Einweisung und Koordination auf den Parkflaechen.,180,2026-06-12,22:00,01:00,2,false
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-12,22:00,01:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-13,00:00,02:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-13,00:00,02:00,2,false
+Medis,Medizinische Erstversorgung und Bereitschaft waehrend des Festivals.,240,2026-06-13,00:00,04:00,2,false
+Springer:innen,"Flexible Unterstuetzung dort, wo kurzfristig Hilfe gebraucht wird.",240,2026-06-13,00:00,04:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,01:00,04:00,1,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,01:00,04:00,1,true
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-13,01:00,04:00,3,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-13,02:00,04:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-13,02:00,04:00,2,false
+Medis,Medizinische Erstversorgung und Bereitschaft waehrend des Festivals.,240,2026-06-13,08:00,12:00,2,false
+Springer:innen,"Flexible Unterstuetzung dort, wo kurzfristig Hilfe gebraucht wird.",240,2026-06-13,08:00,12:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-13,10:00,12:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,10:00,13:00,1,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,10:00,13:00,1,true
+Parkplätze,Einweisung und Koordination auf den Parkflaechen.,180,2026-06-13,10:00,13:00,2,false
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-13,10:00,13:00,3,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-13,12:00,14:00,2,false
+Springer:innen,"Flexible Unterstuetzung dort, wo kurzfristig Hilfe gebraucht wird.",240,2026-06-13,12:00,16:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,13:00,16:00,1,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,13:00,16:00,1,true
+Parkplätze,Einweisung und Koordination auf den Parkflaechen.,180,2026-06-13,13:00,16:00,2,false
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-13,13:00,16:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-13,14:00,16:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-13,14:00,16:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-13,16:00,18:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-13,16:00,18:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,16:00,19:00,1,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,16:00,19:00,1,true
+Medis,Medizinische Erstversorgung und Bereitschaft waehrend des Festivals.,240,2026-06-13,16:00,20:00,2,false
+Parkplätze,Einweisung und Koordination auf den Parkflaechen.,180,2026-06-13,16:00,19:00,2,false
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-13,16:00,19:00,2,false
+Springer:innen,"Flexible Unterstuetzung dort, wo kurzfristig Hilfe gebraucht wird.",240,2026-06-13,16:00,20:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-13,18:00,20:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-13,18:00,20:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,19:00,22:00,1,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,19:00,22:00,1,true
+Parkplätze,Einweisung und Koordination auf den Parkflaechen.,180,2026-06-13,19:00,22:00,2,false
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-13,19:00,22:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-13,20:00,22:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-13,20:00,22:00,2,false
+Medis,Medizinische Erstversorgung und Bereitschaft waehrend des Festivals.,240,2026-06-13,20:00,00:00,2,false
+Springer:innen,"Flexible Unterstuetzung dort, wo kurzfristig Hilfe gebraucht wird.",240,2026-06-13,20:00,00:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-13,22:00,00:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-13,22:00,00:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-13,22:00,01:00,2,false
+Parkplätze,Einweisung und Koordination auf den Parkflaechen.,180,2026-06-13,22:00,01:00,2,false
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-13,22:00,01:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-14,00:00,02:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-14,00:00,02:00,2,false
+Medis,Medizinische Erstversorgung und Bereitschaft waehrend des Festivals.,240,2026-06-14,00:00,04:00,2,false
+Springer:innen,"Flexible Unterstuetzung dort, wo kurzfristig Hilfe gebraucht wird.",240,2026-06-14,00:00,04:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-14,01:00,04:00,2,false
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-14,01:00,04:00,3,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-14,02:00,04:00,2,false
+Bar Saal,Innere Barbesetzung im Saalbereich.,120,2026-06-14,02:00,04:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-14,10:00,12:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-14,10:00,12:00,1,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-14,10:00,12:00,1,true
+Sanitäre Anlagen,Betreuung und Nachschub fuer die sanitären Anlagen.,180,2026-06-14,10:00,13:00,3,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-14,12:00,14:00,2,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-14,12:00,14:00,1,false
+Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-14,12:00,14:00,1,true
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-14,14:00,16:00,2,false
+Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-14,16:00,18:00,2,false

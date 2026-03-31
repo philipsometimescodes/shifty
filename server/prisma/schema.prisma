@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id                      String        @id @default(cuid())
+  name                    String        @default("Festival")
+  startDate               DateTime
+  endDate                 DateTime
+  adminEmailSubjectTemplate String      @default("Infos zu deiner Schicht bei {eventName}")
+  adminEmailBodyTemplate  String        @default("Hallo {name},\n\nhier sind deine Infos fuer deine Schicht {shiftType} am {shiftDate} von {shiftStartTime} bis {shiftEndTime}.\n\nSichtbarkeit: {visibility}\nEvent: {eventName}\n\nViele Gruesse")
+  shiftTypes              ShiftType[]
+  shifts                  Shift[]
+  applications            Application[]
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+}
+
+model ShiftType {
+  id                   String   @id @default(cuid())
+  eventId              String
+  event                Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name                 String
+  description          String
+  defaultLengthMinutes Int
+  shifts               Shift[]
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([eventId, name])
+}
+
+model Shift {
+  id            String        @id @default(cuid())
+  eventId       String
+  event         Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  shiftTypeId   String
+  shiftType     ShiftType     @relation(fields: [shiftTypeId], references: [id])
+  date          DateTime
+  startTime     String
+  endTime       String
+  isPublic      Boolean       @default(false)
+  capacity      Int
+  archived      Boolean       @default(false)
+  applications  Application[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Application {
+  id        String            @id @default(cuid())
+  eventId   String
+  event     Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  shiftId   String
+  shift     Shift             @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  status    String            @default("PENDING")
+  emailSent Boolean           @default(false)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@unique([eventId, email])
+}
