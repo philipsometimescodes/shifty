@@ -10,10 +10,21 @@ dotenv.config({ path: path.resolve(currentDirectory, "../../.env") });
 
 const prisma = new PrismaClient();
 
+const eventDateRange = {
+  startDate: "2026-06-08",
+  endDate: "2026-06-16"
+} as const;
+
 const dayDates = {
+  mondaySetup: "2026-06-08",
+  tuesdaySetup: "2026-06-09",
+  wednesdaySetup: "2026-06-10",
+  thursdaySetup: "2026-06-11",
   friday: "2026-06-12",
   saturday: "2026-06-13",
-  sunday: "2026-06-14"
+  sunday: "2026-06-14",
+  mondayWrap: "2026-06-15",
+  tuesdayWrap: "2026-06-16"
 } as const;
 
 const desiredShiftTypes = [
@@ -51,6 +62,11 @@ const desiredShiftTypes = [
     name: "Medis",
     description: "Medizinische Erstversorgung und Bereitschaft waehrend des Festivals.",
     defaultLengthMinutes: 240
+  },
+  {
+    name: "Kirnhalden",
+    description: "Schicht am Standort Kirnhalden.",
+    defaultLengthMinutes: 480
   }
 ];
 
@@ -187,12 +203,23 @@ function seedMedicShifts() {
   addShift("Medis", dayDates.sunday, "00:00", "04:00", 2);
 }
 
+function seedKirnhaldenShifts() {
+  addShift("Kirnhalden", dayDates.mondaySetup, "09:00", "17:00", 10, false);
+  addShift("Kirnhalden", dayDates.tuesdaySetup, "09:00", "17:00", 10, false);
+  addShift("Kirnhalden", dayDates.wednesdaySetup, "09:00", "17:00", 10, false);
+  addShift("Kirnhalden", dayDates.thursdaySetup, "09:00", "17:00", 20, false);
+  addShift("Kirnhalden", dayDates.friday, "09:00", "17:00", 20, false);
+  addShift("Kirnhalden", dayDates.mondayWrap, "09:00", "17:00", 10, false);
+  addShift("Kirnhalden", dayDates.tuesdayWrap, "09:00", "17:00", 10, false);
+}
+
 seedBarShifts();
 seedParkingShifts();
 seedSanitaryShifts();
 seedInfoDeskShifts();
 seedFloaterShifts();
 seedMedicShifts();
+seedKirnhaldenShifts();
 
 async function main() {
   const event = await prisma.event.findFirst({
@@ -204,6 +231,14 @@ async function main() {
   }
 
   await prisma.$transaction(async (transaction) => {
+    await transaction.event.update({
+      where: { id: event.id },
+      data: {
+        startDate: new Date(`${eventDateRange.startDate}T12:00:00.000Z`),
+        endDate: new Date(`${eventDateRange.endDate}T12:00:00.000Z`)
+      }
+    });
+
     await transaction.application.deleteMany({
       where: { eventId: event.id }
     });

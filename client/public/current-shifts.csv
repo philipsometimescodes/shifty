@@ -1,4 +1,9 @@
 shiftTypeName,shiftTypeDescription,defaultLengthMinutes,date,startTime,endTime,capacity,isPublic
+Kirnhalden,Schicht am Standort Kirnhalden.,480,2026-06-08,09:00,17:00,10,false
+Kirnhalden,Schicht am Standort Kirnhalden.,480,2026-06-09,09:00,17:00,10,false
+Kirnhalden,Schicht am Standort Kirnhalden.,480,2026-06-10,09:00,17:00,10,false
+Kirnhalden,Schicht am Standort Kirnhalden.,480,2026-06-11,09:00,17:00,20,false
+Kirnhalden,Schicht am Standort Kirnhalden.,480,2026-06-12,09:00,17:00,20,false
 Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-12,16:00,19:00,2,false
 Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-12,16:00,19:00,1,true
 Medis,Medizinische Erstversorgung und Bereitschaft waehrend des Festivals.,240,2026-06-12,16:00,20:00,2,false
@@ -84,3 +89,5 @@ Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",1
 Infostand,"Anlaufstelle fuer Fragen, Infos und Orientierung auf dem Gelaende.",180,2026-06-14,12:00,14:00,1,true
 Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-14,14:00,16:00,2,false
 Bar Cafete,Barbesetzung im Cafete-Bereich.,120,2026-06-14,16:00,18:00,2,false
+Kirnhalden,Schicht am Standort Kirnhalden.,480,2026-06-15,09:00,17:00,10,false
+Kirnhalden,Schicht am Standort Kirnhalden.,480,2026-06-16,09:00,17:00,10,false
