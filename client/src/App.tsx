@@ -82,6 +82,13 @@ type ShiftImportResponse = {
   replaceExisting: boolean;
 };
 
+type StateImportResponse = {
+  eventName: string;
+  restoredShiftTypeCount: number;
+  restoredShiftCount: number;
+  restoredApplicationCount: number;
+};
+
 type TimelineZoomLevel = "overview" | "balanced" | "detail";
 
 const defaultFestivalName = "Festival 2026";
@@ -683,10 +690,16 @@ function AdminDashboardPage() {
   const [shiftImportFile, setShiftImportFile] = useState<File | null>(null);
   const [replaceExistingShiftImports, setReplaceExistingShiftImports] = useState(true);
   const [importingShifts, setImportingShifts] = useState(false);
+  const [stateImportDialogOpen, setStateImportDialogOpen] = useState(false);
+  const [stateImportFile, setStateImportFile] = useState<File | null>(null);
+  const [importingState, setImportingState] = useState(false);
+  const [exportingState, setExportingState] = useState(false);
   const [manualApplicationDialogOpen, setManualApplicationDialogOpen] = useState(false);
   const [manualApplicationForm, setManualApplicationForm] = useState(emptyManualApplicationForm);
+  const [manualApplicationLockedShiftId, setManualApplicationLockedShiftId] = useState<string | null>(null);
   const [creatingManualApplication, setCreatingManualApplication] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [showAllApplications, setShowAllApplications] = useState(false);
   const [timelineZoom, setTimelineZoom] = useState<TimelineZoomLevel>("balanced");
 
   async function load() {
@@ -744,6 +757,10 @@ function AdminDashboardPage() {
   const currentEvent = data?.event ?? null;
   const shiftTypes = data?.shiftTypes ?? [];
   const selectedShiftType = shiftTypes.find((shiftType) => shiftType.id === shiftForm.shiftTypeId) ?? null;
+  const editingShift = data?.shifts.find((shift) => shift.id === editingShiftId) ?? null;
+  const confirmedShiftApplications = editingShift?.applications.filter((application) => application.status === "APPROVED") ?? [];
+  const visibleApplications =
+    data?.applications.filter((application) => showAllApplications || application.status === "PENDING" || !application.emailSent) ?? [];
   const rangeChanged = Boolean(
     currentEvent && (eventForm.startDate !== currentEvent.startDate || eventForm.endDate !== currentEvent.endDate)
   );
@@ -875,6 +892,16 @@ function AdminDashboardPage() {
     setReplaceExistingShiftImports(true);
   }
 
+  function openStateImportDialog() {
+    setStateImportFile(null);
+    setStateImportDialogOpen(true);
+  }
+
+  function closeStateImportDialog() {
+    setStateImportDialogOpen(false);
+    setStateImportFile(null);
+  }
+
   function openEmailTemplateDialog() {
     setEmailTemplateForm({
       subjectTemplate: currentEvent?.adminEmailSubjectTemplate ?? defaultAdminEmailSubjectTemplate,
@@ -891,8 +918,9 @@ function AdminDashboardPage() {
     });
   }
 
-  function openManualApplicationDialog() {
-    const defaultShiftId = data?.shifts.find((shift) => !shift.archived)?.id ?? "";
+  function openManualApplicationDialog(shiftId?: string) {
+    const defaultShiftId = shiftId ?? data?.shifts.find((shift) => !shift.archived)?.id ?? "";
+    setManualApplicationLockedShiftId(shiftId ?? null);
     setManualApplicationForm({
       ...emptyManualApplicationForm,
       shiftId: defaultShiftId
@@ -902,6 +930,7 @@ function AdminDashboardPage() {
 
   function closeManualApplicationDialog() {
     setManualApplicationDialogOpen(false);
+    setManualApplicationLockedShiftId(null);
     setManualApplicationForm(emptyManualApplicationForm);
   }
 
@@ -1007,6 +1036,104 @@ function AdminDashboardPage() {
     }
   }
 
+  async function handleStateExport() {
+    if (!currentEvent) {
+      setMessage("Erstelle zuerst ein Event.");
+      return;
+    }
+
+    setExportingState(true);
+
+    try {
+      const response = await fetch("/api/admin/state/export", {
+        credentials: "include"
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({ error: "Speicherstand konnte nicht exportiert werden." }));
+        throw new Error(payload.error ?? "Speicherstand konnte nicht exportiert werden.");
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const contentDisposition = response.headers.get("content-disposition") ?? "";
+      const filenameMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+      const filename = filenameMatch?.[1] ?? `shifty-state-${new Date().toISOString().slice(0, 10)}.json`;
+      const link = document.createElement("a");
+
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+      setMessage("Speicherstand wurde heruntergeladen.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Speicherstand konnte nicht exportiert werden.");
+    } finally {
+      setExportingState(false);
+    }
+  }
+
+  async function handleStateImportSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!stateImportFile) {
+      setMessage("Waehle zuerst eine Speicherstand-Datei aus.");
+      return;
+    }
+
+    let snapshotPayload: unknown;
+
+    try {
+      snapshotPayload = JSON.parse(await stateImportFile.text()) as unknown;
+    } catch {
+      setMessage("Die Datei ist kein gueltiges JSON-Speicherformat.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Aktuellen Stand wirklich komplett durch diese Datei ersetzen? Event, Schichttypen, Schichten und Personen werden vollstaendig wiederhergestellt."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setImportingState(true);
+
+    try {
+      const result = await api<StateImportResponse>("/api/admin/state/import", {
+        method: "POST",
+        body: JSON.stringify(snapshotPayload)
+      });
+
+      setStateImportDialogOpen(false);
+      setStateImportFile(null);
+      setEventEditorOpen(false);
+      setShowShiftTypes(false);
+      setShiftTypeDialogOpen(false);
+      setEditingShiftTypeId(null);
+      setShiftDialogOpen(false);
+      setEditingShiftId(null);
+      setShiftImportDialogOpen(false);
+      setShiftImportFile(null);
+      setManualApplicationDialogOpen(false);
+      setManualApplicationLockedShiftId(null);
+      setManualApplicationForm(emptyManualApplicationForm);
+      setShowArchived(false);
+      setShowAllApplications(false);
+      await load();
+      setMessage(
+        `Speicherstand fuer ${result.eventName} wiederhergestellt. ${result.restoredShiftTypeCount} Schichttypen, ${result.restoredShiftCount} Schichten und ${result.restoredApplicationCount} Personen wurden geladen.`
+      );
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Speicherstand konnte nicht wiederhergestellt werden.");
+    } finally {
+      setImportingState(false);
+    }
+  }
+
   async function handleEmailTemplateSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -1070,6 +1197,25 @@ function AdminDashboardPage() {
     }
   }
 
+  async function handleShiftDelete(shift: Shift) {
+    const confirmed = window.confirm(
+      `Schicht "${shift.shiftType.name}" am ${formatLongDate(shift.date)} von ${shift.startTime} bis ${shift.endTime} wirklich loeschen? Zugewiesene Personen werden ebenfalls entfernt.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await api(`/api/admin/shifts/${shift.id}`, { method: "DELETE" });
+      closeShiftDialog();
+      setMessage("Schicht wurde geloescht.");
+      await load();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Schicht konnte nicht geloescht werden.");
+    }
+  }
+
   async function updateApplicationStatus(applicationId: string, status: ApplicationStatus) {
     try {
       await api(`/api/admin/applications/${applicationId}/status`, {
@@ -1092,6 +1238,28 @@ function AdminDashboardPage() {
       await load();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Mail-Status konnte nicht aktualisiert werden.");
+    }
+  }
+
+  async function handleApplicationDelete(application: ShiftApplication & { shiftTypeName?: string; shiftDate?: string; shiftStartTime?: string; shiftEndTime?: string }) {
+    const shiftDescription =
+      application.shiftTypeName && application.shiftDate && application.shiftStartTime && application.shiftEndTime
+        ? ` (${application.shiftTypeName} · ${formatDate(application.shiftDate)} · ${application.shiftStartTime} bis ${application.shiftEndTime})`
+        : "";
+    const confirmed = window.confirm(
+      `Person "${application.name}"${shiftDescription} wirklich loeschen? Die Bewerbung wird dauerhaft entfernt.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await api(`/api/admin/applications/${application.id}`, { method: "DELETE" });
+      setMessage("Person wurde entfernt.");
+      await load();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Person konnte nicht entfernt werden.");
     }
   }
 
@@ -1213,6 +1381,12 @@ function AdminDashboardPage() {
                 <div className="button-row compact-row event-actions-row">
                   <button className="secondary-button" onClick={() => setShowShiftTypes((current) => !current)} type="button">
                     {showShiftTypes ? "Schichttypen ausblenden" : "Schichttypen anzeigen"}
+                  </button>
+                  <button className="secondary-button" disabled={exportingState} onClick={() => void handleStateExport()} type="button">
+                    {exportingState ? "Speicherstand wird erstellt..." : "Speicherstand herunterladen"}
+                  </button>
+                  <button className="secondary-button" onClick={openStateImportDialog} type="button">
+                    Speicherstand wiederherstellen
                   </button>
                   <button className="secondary-button" onClick={openEmailTemplateDialog} type="button">
                     E-Mail-Vorlage
@@ -1485,10 +1659,74 @@ function AdminDashboardPage() {
                     <button className="primary-button" disabled={!shiftTypes.length} type="submit">
                       {editingShiftId ? "Schicht speichern" : "Schicht anlegen"}
                     </button>
+                    {editingShift ? (
+                      <button className="secondary-button danger-button" onClick={() => void handleShiftDelete(editingShift)} type="button">
+                        Schicht loeschen
+                      </button>
+                    ) : null}
                     <button className="secondary-button" onClick={closeShiftDialog} type="button">
                       Abbrechen
                     </button>
                   </div>
+                  {editingShiftId ? (
+                    <div className="shift-assignees-section">
+                      <div className="panel-heading shift-assignees-heading">
+                        <div>
+                          <h3>Zugewiesene Personen</h3>
+                          <p className="muted shift-types-copy">Angezeigt werden nur Bewerbungen mit Status Bestaetigt.</p>
+                        </div>
+                        <button
+                          className="secondary-button"
+                          disabled={!editingShift}
+                          onClick={() => {
+                            if (!editingShift) {
+                              return;
+                            }
+
+                            closeShiftDialog();
+                            openManualApplicationDialog(editingShift.id);
+                          }}
+                          type="button"
+                        >
+                          Person zuweisen
+                        </button>
+                      </div>
+                      {confirmedShiftApplications.length ? (
+                        <div className="application-table-wrap compact-application-table-wrap">
+                          <table className="application-table compact-application-table">
+                            <thead>
+                              <tr>
+                                <th>Name</th>
+                                <th>E-Mail</th>
+                                <th>Gesendet</th>
+                                <th>Aktionen</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {confirmedShiftApplications.map((application) => (
+                                <tr key={application.id}>
+                                  <td>{application.name}</td>
+                                  <td>{application.email}</td>
+                                  <td>
+                                    <span className={`status-pill ${application.emailSent ? "status-approved" : "status-pending"}`}>
+                                      {application.emailSent ? "Ja" : "Nein"}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    <button className="secondary-button danger-button" onClick={() => void handleApplicationDelete(application)} type="button">
+                                      Person loeschen
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <p className="muted">Dieser Schicht ist aktuell noch niemand bestaetigt zugewiesen.</p>
+                      )}
+                    </div>
+                  ) : null}
                 </form>
               </div>
             </dialog>
@@ -1544,6 +1782,46 @@ function AdminDashboardPage() {
             </dialog>
           ) : null}
 
+          {stateImportDialogOpen ? (
+            <dialog aria-modal="true" className="modal-dialog" open>
+              <div className="modal-backdrop" onClick={closeStateImportDialog} />
+              <div className="modal-card">
+                <div className="panel-heading modal-heading">
+                  <div>
+                    <h2>Speicherstand wiederherstellen</h2>
+                    <p className="muted shift-types-copy">Lade eine JSON-Datei hoch, um Event, Schichttypen, Schichten und Personen komplett wiederherzustellen.</p>
+                  </div>
+                </div>
+                <form className="stack" onSubmit={handleStateImportSubmit}>
+                  <label>
+                    Speicherstand-Datei
+                    <input
+                      accept="application/json,.json"
+                      onChange={(event: ChangeEvent<HTMLInputElement>) => setStateImportFile(event.target.files?.[0] ?? null)}
+                      type="file"
+                    />
+                  </label>
+                  {stateImportFile ? <p className="muted field-help">Ausgewaehlt: {stateImportFile.name}</p> : null}
+                  <div className="import-format-box">
+                    <strong>Enthaltene Daten</strong>
+                    <p>Event, E-Mail-Vorlagen, Schichttypen, Schichten, Sichtbarkeiten, Archivstatus, Personen, Status und E-Mail-Sendestatus.</p>
+                  </div>
+                  <div className="warning-box">
+                    Achtung: Beim Wiederherstellen wird der aktuelle Stand vollstaendig ersetzt.
+                  </div>
+                  <div className="button-row compact-row">
+                    <button className="primary-button" disabled={importingState} type="submit">
+                      {importingState ? "Speicherstand wird geladen..." : "Speicherstand wiederherstellen"}
+                    </button>
+                    <button className="secondary-button" onClick={closeStateImportDialog} type="button">
+                      Abbrechen
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </dialog>
+          ) : null}
+
           {manualApplicationDialogOpen ? (
             <dialog aria-modal="true" className="modal-dialog" open>
               <div className="modal-backdrop" onClick={closeManualApplicationDialog} />
@@ -1558,6 +1836,7 @@ function AdminDashboardPage() {
                   <label>
                     Schicht
                     <select
+                      disabled={Boolean(manualApplicationLockedShiftId)}
                       value={manualApplicationForm.shiftId}
                       onChange={(event) => setManualApplicationForm((current) => ({ ...current, shiftId: event.target.value }))}
                     >
@@ -1569,6 +1848,7 @@ function AdminDashboardPage() {
                       ))}
                     </select>
                   </label>
+                  {manualApplicationLockedShiftId ? <p className="muted field-help">Die Schicht wurde aus der Schichtansicht uebernommen.</p> : null}
                   <div className="form-row">
                     <label>
                       Name
@@ -1767,12 +2047,18 @@ function AdminDashboardPage() {
             <div className="panel-heading">
               <h2>Bewerbungen</h2>
               <div className="button-row compact-row shift-section-actions">
-                <span>{data?.applications.length ?? 0} Eintraege</span>
-                <button className="secondary-button" onClick={openManualApplicationDialog} type="button">
+                <span>
+                  {visibleApplications.length} von {data?.applications.length ?? 0} Eintraegen
+                </span>
+                <button className="secondary-button" onClick={() => setShowAllApplications((current) => !current)} type="button">
+                  {showAllApplications ? "Standardfilter" : "Alle anzeigen"}
+                </button>
+                <button className="secondary-button" onClick={() => openManualApplicationDialog()} type="button">
                   Person zuweisen
                 </button>
               </div>
             </div>
+            <p className="muted filter-hint">Standardmaessig sichtbar: offene Bewerbungen oder Eintraege ohne gesendete E-Mail.</p>
             <div className="application-table-wrap">
               <table className="application-table">
                 <thead>
@@ -1787,7 +2073,7 @@ function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data?.applications.map((application) => (
+                  {visibleApplications.map((application) => (
                     <tr key={application.id}>
                       <td>{application.name}</td>
                       <td>{application.email}</td>
@@ -1826,6 +2112,9 @@ function AdminDashboardPage() {
                           <button className="secondary-button danger-button" onClick={() => void updateApplicationStatus(application.id, "REJECTED")} type="button">
                             Ablehnen
                           </button>
+                          <button className="secondary-button danger-button" onClick={() => void handleApplicationDelete(application)} type="button">
+                            Loeschen
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -1833,6 +2122,7 @@ function AdminDashboardPage() {
                 </tbody>
               </table>
               {!data?.applications.length ? <p className="muted">Es gibt noch keine Bewerbungen.</p> : null}
+              {data?.applications.length && !visibleApplications.length ? <p className="muted">Keine Bewerbungen entsprechen dem aktuellen Filter.</p> : null}
             </div>
           </section>
         </>

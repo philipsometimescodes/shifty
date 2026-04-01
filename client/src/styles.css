@@ -967,9 +967,18 @@ textarea:focus {
   overflow-x: auto;
 }
 
+.compact-application-table-wrap {
+  margin-top: 8px;
+}
+
 .application-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.compact-application-table th,
+.compact-application-table td {
+  padding: 12px 10px;
 }
 
 .application-table th,
@@ -1023,6 +1032,19 @@ textarea:focus {
   align-items: center;
   gap: 8px;
   color: var(--ink);
+}
+
+.shift-assignees-section {
+  padding-top: 10px;
+  border-top: 1px solid rgba(31, 42, 35, 0.08);
+}
+
+.shift-assignees-heading {
+  margin-bottom: 10px;
+}
+
+.filter-hint {
+  margin: 0 0 14px;
 }
 
 @media (max-width: 900px) {

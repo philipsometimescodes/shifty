@@ -70,6 +70,121 @@ type ImportedShiftRow = {
   isPublic: boolean;
 };
 
+const stateSnapshotSchema = z.object({
+  version: z.literal(1),
+  exportedAt: z.string().min(1),
+  event: z.object({
+    id: z.string().min(1),
+    name: z.string().trim().min(2).max(120),
+    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    adminEmailSubjectTemplate: z.string().trim().min(1).max(200),
+    adminEmailBodyTemplate: z.string().trim().min(1).max(5000)
+  }),
+  shiftTypes: z.array(
+    z.object({
+      id: z.string().min(1),
+      name: z.string().trim().min(2).max(100),
+      description: z.string().trim().max(600),
+      defaultLengthMinutes: z.number().int().min(15).max(24 * 60)
+    })
+  ),
+  shifts: z.array(
+    z.object({
+      id: z.string().min(1),
+      shiftTypeId: z.string().min(1),
+      date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      startTime: z.string().regex(/^\d{2}:\d{2}$/),
+      endTime: z.string().regex(/^\d{2}:\d{2}$/),
+      isPublic: z.boolean(),
+      capacity: z.number().int().min(1).max(500),
+      archived: z.boolean()
+    })
+  ),
+  applications: z.array(
+    z.object({
+      id: z.string().min(1),
+      shiftId: z.string().min(1),
+      name: z.string().trim().min(2).max(120),
+      email: z.string().trim().email().max(320),
+      status: applicationStatusSchema,
+      emailSent: z.boolean()
+    })
+  )
+});
+
+type StateSnapshot = z.infer<typeof stateSnapshotSchema>;
+
+function validateStateSnapshot(snapshot: StateSnapshot) {
+  const startDate = parseDateOnly(snapshot.event.startDate);
+  const endDate = parseDateOnly(snapshot.event.endDate);
+
+  if (startDate.getTime() > endDate.getTime()) {
+    throw new Error("Der Eventzeitraum im Speicherstand ist ungueltig.");
+  }
+
+  const shiftTypeIds = new Set<string>();
+
+  for (const shiftType of snapshot.shiftTypes) {
+    if (shiftTypeIds.has(shiftType.id)) {
+      throw new Error("Der Speicherstand enthaelt doppelte Schichttyp-IDs.");
+    }
+
+    shiftTypeIds.add(shiftType.id);
+  }
+
+  const shiftIds = new Set<string>();
+  const reservedCountByShiftId = new Map<string, number>();
+
+  for (const shift of snapshot.shifts) {
+    if (shiftIds.has(shift.id)) {
+      throw new Error("Der Speicherstand enthaelt doppelte Schicht-IDs.");
+    }
+
+    if (!shiftTypeIds.has(shift.shiftTypeId)) {
+      throw new Error("Eine Schicht verweist auf einen unbekannten Schichttyp.");
+    }
+
+    if (!isValidTimeRange(shift.startTime, shift.endTime)) {
+      throw new Error(`Die Schicht ${shift.id} enthaelt eine ungueltige Zeitspanne.`);
+    }
+
+    if (!isDateWithinRange(parseDateOnly(shift.date), startDate, endDate)) {
+      throw new Error(`Die Schicht ${shift.id} liegt ausserhalb des Eventzeitraums.`);
+    }
+
+    shiftIds.add(shift.id);
+  }
+
+  const emails = new Set<string>();
+
+  for (const application of snapshot.applications) {
+    if (!shiftIds.has(application.shiftId)) {
+      throw new Error("Eine Person im Speicherstand verweist auf eine unbekannte Schicht.");
+    }
+
+    const normalizedEmail = application.email.toLowerCase();
+
+    if (emails.has(normalizedEmail)) {
+      throw new Error("Der Speicherstand enthaelt dieselbe E-Mail-Adresse mehrfach im Event.");
+    }
+
+    emails.add(normalizedEmail);
+
+    if (application.status !== "REJECTED") {
+      reservedCountByShiftId.set(application.shiftId, (reservedCountByShiftId.get(application.shiftId) ?? 0) + 1);
+    }
+  }
+
+  for (const shift of snapshot.shifts) {
+    const reservedCount = reservedCountByShiftId.get(shift.id) ?? 0;
+
+    if (reservedCount > shift.capacity) {
+      throw new Error(`Die Schicht ${shift.id} hat mehr zugewiesene Personen als Plaetze.`);
+    }
+  }
+}
+
 function normalizeCsvColumnName(value: string) {
   return value.replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 }
@@ -244,6 +359,159 @@ function parseImportedShiftRows(csvText: string) {
 export const adminRouter = Router();
 
 adminRouter.use(requireAdmin);
+
+adminRouter.get("/state/export", async (_req, res) => {
+  const event = await prisma.event.findFirst({
+    orderBy: { createdAt: "desc" },
+    include: {
+      shiftTypes: {
+        orderBy: [{ name: "asc" }]
+      },
+      shifts: {
+        orderBy: [{ date: "asc" }, { startTime: "asc" }, { createdAt: "asc" }]
+      },
+      applications: {
+        orderBy: [{ createdAt: "asc" }]
+      }
+    }
+  });
+
+  if (!event) {
+    res.status(404).json({ error: "Event not found" });
+    return;
+  }
+
+  const snapshot: StateSnapshot = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    event: {
+      id: event.id,
+      name: event.name,
+      startDate: event.startDate.toISOString().slice(0, 10),
+      endDate: event.endDate.toISOString().slice(0, 10),
+      adminEmailSubjectTemplate: event.adminEmailSubjectTemplate,
+      adminEmailBodyTemplate: event.adminEmailBodyTemplate
+    },
+    shiftTypes: event.shiftTypes.map((shiftType) => ({
+      id: shiftType.id,
+      name: shiftType.name,
+      description: shiftType.description,
+      defaultLengthMinutes: shiftType.defaultLengthMinutes
+    })),
+    shifts: event.shifts.map((shift) => ({
+      id: shift.id,
+      shiftTypeId: shift.shiftTypeId,
+      date: shift.date.toISOString().slice(0, 10),
+      startTime: shift.startTime,
+      endTime: shift.endTime,
+      isPublic: shift.isPublic,
+      capacity: shift.capacity,
+      archived: shift.archived
+    })),
+    applications: event.applications.map((application) => ({
+      id: application.id,
+      shiftId: application.shiftId,
+      name: application.name,
+      email: application.email,
+      status: application.status as z.infer<typeof applicationStatusSchema>,
+      emailSent: application.emailSent
+    }))
+  };
+
+  const safeEventName = event.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "event";
+  const filename = `shifty-state-${safeEventName}-${new Date().toISOString().slice(0, 10)}.json`;
+
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.json(snapshot);
+});
+
+adminRouter.post("/state/import", async (req, res) => {
+  const parsed = stateSnapshotSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    res.status(400).json({ error: "Ungueltiger Speicherstand." });
+    return;
+  }
+
+  try {
+    validateStateSnapshot(parsed.data);
+  } catch (error) {
+    res.status(400).json({ error: error instanceof Error ? error.message : "Speicherstand konnte nicht validiert werden." });
+    return;
+  }
+
+  const snapshot = parsed.data;
+  const startDate = parseDateOnly(snapshot.event.startDate);
+  const endDate = parseDateOnly(snapshot.event.endDate);
+
+  await prisma.$transaction(async (transaction) => {
+    await transaction.application.deleteMany({});
+    await transaction.shift.deleteMany({});
+    await transaction.shiftType.deleteMany({});
+    await transaction.event.deleteMany({});
+
+    await transaction.event.create({
+      data: {
+        id: snapshot.event.id,
+        name: snapshot.event.name,
+        startDate,
+        endDate,
+        adminEmailSubjectTemplate: snapshot.event.adminEmailSubjectTemplate,
+        adminEmailBodyTemplate: snapshot.event.adminEmailBodyTemplate
+      }
+    });
+
+    if (snapshot.shiftTypes.length) {
+      await transaction.shiftType.createMany({
+        data: snapshot.shiftTypes.map((shiftType) => ({
+          id: shiftType.id,
+          eventId: snapshot.event.id,
+          name: shiftType.name,
+          description: shiftType.description,
+          defaultLengthMinutes: shiftType.defaultLengthMinutes
+        }))
+      });
+    }
+
+    if (snapshot.shifts.length) {
+      await transaction.shift.createMany({
+        data: snapshot.shifts.map((shift) => ({
+          id: shift.id,
+          eventId: snapshot.event.id,
+          shiftTypeId: shift.shiftTypeId,
+          date: parseDateOnly(shift.date),
+          startTime: shift.startTime,
+          endTime: shift.endTime,
+          isPublic: shift.isPublic,
+          capacity: shift.capacity,
+          archived: shift.archived
+        }))
+      });
+    }
+
+    if (snapshot.applications.length) {
+      await transaction.application.createMany({
+        data: snapshot.applications.map((application) => ({
+          id: application.id,
+          eventId: snapshot.event.id,
+          shiftId: application.shiftId,
+          name: application.name,
+          email: application.email.toLowerCase(),
+          status: application.status,
+          emailSent: application.emailSent
+        }))
+      });
+    }
+  });
+
+  res.json({
+    eventName: snapshot.event.name,
+    restoredShiftTypeCount: snapshot.shiftTypes.length,
+    restoredShiftCount: snapshot.shifts.length,
+    restoredApplicationCount: snapshot.applications.length
+  });
+});
 
 adminRouter.get("/dashboard", async (_req, res) => {
   const event = await prisma.event.findFirst({
@@ -774,6 +1042,25 @@ adminRouter.patch("/shifts/:id", async (req, res) => {
   res.json(serializeShift(updatedShift, { startDate: shift.event.startDate, endDate: shift.event.endDate }));
 });
 
+adminRouter.delete("/shifts/:id", async (req, res) => {
+  const shift = await prisma.shift.findUnique({
+    where: { id: req.params.id },
+    include: {
+      applications: {
+        select: { id: true }
+      }
+    }
+  });
+
+  if (!shift) {
+    res.status(404).json({ error: "Shift not found" });
+    return;
+  }
+
+  await prisma.shift.delete({ where: { id: shift.id } });
+  res.status(204).send();
+});
+
 adminRouter.post("/applications/manual", async (req, res) => {
   const parsed = manualApplicationSchema.safeParse(req.body);
 
@@ -963,4 +1250,18 @@ adminRouter.patch("/applications/:id/email-sent", async (req, res) => {
   });
 
   res.json({ id: updated.id, emailSent: updated.emailSent });
+});
+
+adminRouter.delete("/applications/:id", async (req, res) => {
+  const application = await prisma.application.findUnique({
+    where: { id: req.params.id }
+  });
+
+  if (!application) {
+    res.status(404).json({ error: "Application not found" });
+    return;
+  }
+
+  await prisma.application.delete({ where: { id: application.id } });
+  res.status(204).send();
 });
