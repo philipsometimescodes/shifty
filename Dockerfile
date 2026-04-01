@@ -10,7 +10,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run prisma:generate --workspace server
+RUN npm run prisma:generate --workspace serverokay, i have a server running at 89.167.80.92 - 
 RUN npm run build
 
 EXPOSE 3000

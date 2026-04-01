@@ -611,7 +611,7 @@ function PublicPage() {
 
 function AdminLoginPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "admin@example.com", password: "change-me" });
+  const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -643,6 +643,7 @@ function AdminLoginPage() {
           <label>
             Email
             <input
+              required
               type="email"
               value={form.email}
               onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
@@ -651,6 +652,7 @@ function AdminLoginPage() {
           <label>
             Passwort
             <input
+              required
               type="password"
               value={form.password}
               onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}

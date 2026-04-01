@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 
 import { clearAdminCookie, readAdminToken, setAdminCookie, signAdminToken } from "../auth.js";
@@ -11,6 +12,20 @@ const credentialsSchema = z.object({
 
 export const authRouter = Router();
 
+function safeCompareSecret(left: string, right: string) {
+  const leftBuffer = Buffer.from(left, "utf8");
+  const rightBuffer = Buffer.from(right, "utf8");
+  const maxLength = Math.max(leftBuffer.length, rightBuffer.length, 1);
+  const paddedLeft = Buffer.alloc(maxLength);
+  const paddedRight = Buffer.alloc(maxLength);
+
+  leftBuffer.copy(paddedLeft);
+  rightBuffer.copy(paddedRight);
+
+  const same = timingSafeEqual(paddedLeft, paddedRight);
+  return same && leftBuffer.length === rightBuffer.length;
+}
+
 authRouter.post("/login", (req, res) => {
   const parsed = credentialsSchema.safeParse(req.body);
 
@@ -21,7 +36,7 @@ authRouter.post("/login", (req, res) => {
 
   const email = parsed.data.email.toLowerCase();
 
-  if (email !== config.adminEmail || parsed.data.password !== config.adminPassword) {
+  if (email !== config.adminEmail || !safeCompareSecret(parsed.data.password, config.adminPassword)) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }
